@@ -54,28 +54,20 @@ export default function Profile() {
   };
 
   const handlePress = (diet) => {
-    if (!user.token) {
-      dispatch(addDiet(diet.prop));
-      navigation.navigate("TabNavigator", {
-        screen: "Regime",
-        params: { diet, dietIcons },
-      });
-    } else {
-      fetch(`http://${IPADRESS}:3000` + "/users/diet/" + user.token, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ field: diet.prop }),
+    fetch(`http://${IPADRESS}:3000` + "/users/diet/" + user.token, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ field: diet.prop }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.result) {
+          dispatch(addDiet(diet.prop));
+        } else {
+          createAlert(data.error);
+        }
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.result) {
-            dispatch(addDiet(diet.prop));
-          } else {
-            createAlert(data.error);
-          }
-        })
-        .catch((error) => console.error(error));
-    }
+      .catch((error) => console.error(error));
   };
 
   const dietsContent = diets.map((diet, i) => {

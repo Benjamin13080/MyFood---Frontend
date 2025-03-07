@@ -105,7 +105,7 @@ export default function Recipe({ navigation, route }) {
         selectedColor='#6DCD7D'
         reviewSize={15}
     /> : null;
-    const recipeContent = recipe && recipe.recipeContent.split('\n').map((instr, i) => <Text style={styles.text} key={i}>• {instr}</Text>)
+    const recipeContent = recipe && recipe.recipeContent != '' && recipe.recipeContent.split('\n').map((instr, i) => <Text style={styles.text} key={i}>• {instr}</Text>)
 
 
     if (!recipe) {

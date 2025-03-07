@@ -34,7 +34,7 @@ export default function Search({ navigation }) {
                     user && setDietOptions([user.diet])
                 }
             })
-    }, []);
+    }, [user.diet]);
 
     // Use effect: dietOptions or seachInput initialized or updated
     useEffect(() => {

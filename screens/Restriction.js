@@ -38,7 +38,6 @@ export default function Restriction({ navigation }) {
 	};
 
 	const handlePress = (diet) => {
-		console.log(user);
 		if (!user.token) {
 			dispatch(addDiet(diet.prop));
 			navigation.navigate('TabNavigator', { screen: 'Regime', params: { diet, dietIcons } });

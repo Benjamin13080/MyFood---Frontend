@@ -27,10 +27,9 @@ export default function SavedRecipes() {
                 data.result && setBookmarks(data.bookmarks);
             })
 
-    }, []);
+    }, [user.bookmarks]);
 
     const content = bookmarks.length == 0 ? <Text style={styles.loading}>No saved recipe.</Text> : bookmarks.map((bookmark, i) => {
-        console.log(bookmark);
         const icons = dietIcons.filter(diet => bookmark[diet.name])
             .map((diet, i) => (<Image key={i} style={styles.recipeImage} source={diet.img} alt={diet.name} />))
 
