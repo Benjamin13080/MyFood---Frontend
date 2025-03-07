@@ -18,6 +18,7 @@ export default function Profile() {
   const navigation = useNavigation();
   const IPADRESS = process.env.EXPO_PUBLIC_IP_ADDRESS;
   const token = useSelector((state) => state.user.value.token);
+  const diet = useSelector((state) => state.user.value.diet);
   const [modalDeleteAccount, setModalDeleteAccount] = useState(false);
   const [modalChangeEmail, setModalChangeEmail] = useState(false);
   const [modalChangePassword, setModalChangePassword] = useState(false);
@@ -472,47 +473,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-{
-  /* <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>
-              
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your password"
-              secureTextEntry={true}
-              onChangeText={(text) => setPassword(text)}
-              value={password}
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.button, styles.buttonCancel]}
-                onPress={() => setModalVisible(!modalVisible)}
-              >
-                <Text style={styles.textStyle}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.buttonConfirm]}
-                onPress={() => {
-                  setModalVisible(!modalVisible);
-                  handleDeleteAccount();
-                  setPassword("");
-                }}
-              >
-                <Text style={styles.textStyle}>Confirm</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal> */
-}
