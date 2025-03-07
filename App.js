@@ -16,6 +16,7 @@ import Recipe from "./screens/Recipe";
 import Profile from "./screens/Profile";
 import Settings from "./screens/Settings";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { useSelector } from "react-redux";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -29,6 +30,10 @@ const store = configureStore({
 const persistor = persistStore(store);
 
 const TabNavigator = () => {
+
+  const user = useSelector((state) => state.user.value);
+  const isUserLoggedIn = user.token ? <Tab.Screen name="Profile" component={Profile} /> : null;
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -50,12 +55,13 @@ const TabNavigator = () => {
     >
       <Tab.Screen name="Regime" component={Regime} />
       <Tab.Screen name="Search" component={Search} />
-      <Tab.Screen name="Profile" component={Profile} />
+      {isUserLoggedIn}
     </Tab.Navigator>
   );
 };
 
 export default function App() {
+
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor}>

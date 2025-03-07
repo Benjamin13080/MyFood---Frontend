@@ -99,10 +99,10 @@ export default function Recipe({ navigation, route }) {
         defaultRating={rating}
         size={20}
         onFinishRating={handleRating}
-        reviewColor='#B4D4B9'
-        starContainerStyle={{ marginBottom: '10%' }}
+        reviewColor='#6DCD7D'
+        starContainerStyle={{ marginBottom: '5%' }}
         unselectedColor='grey'
-        selectedColor='#B4D4B9'
+        selectedColor='#6DCD7D'
         reviewSize={15}
     /> : null;
     const recipeContent = recipe && recipe.recipeContent.split('\n').map((instr, i) => <Text style={styles.text} key={i}>• {instr}</Text>)
@@ -121,9 +121,9 @@ export default function Recipe({ navigation, route }) {
             <ScrollView style={styles.container}>
                 {bookmark}
                 <Text style={styles.title}>{recipe.name}</Text>
-                {ratings}
                 <View style={styles.fisrtContainer}>
                     <Image source={{ uri: recipe.picture }} style={styles.image}></Image>
+                    {ratings}
                     <View style={styles.nutContainer}>
                         <Text style={styles.casesTitle}>Nutritional information :</Text>
                         <Text style={styles.textTitle}>• calories : {recipe.calories}</Text>
@@ -204,14 +204,15 @@ const styles = StyleSheet.create({
         margin: "1%",
     },
     nutContainer: {
-        margin: '5%',
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'column',
+        marginBottom: '5%',
     },
     image: {
         width: 370,
         height: 240,
+        marginBottom: '5%',
     },
     fisrtContainer: {
         justifyContent: 'center',
