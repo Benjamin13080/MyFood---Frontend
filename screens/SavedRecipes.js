@@ -4,8 +4,6 @@ import { useSelector } from "react-redux";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 
-
-
 export default function SavedRecipes() {
     const navigation = useNavigation();
     const IPADRESS = process.env.EXPO_PUBLIC_IP_ADDRESS;
@@ -26,13 +24,12 @@ export default function SavedRecipes() {
         fetch(`http://${IPADRESS}:3000` + '/bookmarks/infos/' + user.token)
             .then(response => response.json())
             .then(data => {
-                console.log(data);
                 data.result && setBookmarks(data.bookmarks);
             })
 
     }, []);
 
-    const content = bookmarks.length == 0 ? <Text style={styles.loading}>Loading...</Text> : bookmarks.map((bookmark, i) => {
+    const content = bookmarks.length == 0 ? <Text style={styles.loading}>No saved recipe.</Text> : bookmarks.map((bookmark, i) => {
         console.log(bookmark);
         const icons = dietIcons.filter(diet => bookmark[diet.name])
             .map((diet, i) => (<Image key={i} style={styles.recipeImage} source={diet.img} alt={diet.name} />))
@@ -54,11 +51,9 @@ export default function SavedRecipes() {
 
 
     return (
-        <View style={styles.container}>
-            <ScrollView>
-                {content}
-            </ScrollView>
-        </View>
+        <ScrollView style={styles.container}>
+            {content}
+        </ScrollView>
     );
 }
 
@@ -69,6 +64,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#EDF9EF',
         overflow: 'scroll',
         paddingBottom: '10%',
+        textAlign: 'center',
     },
     recipeImage: {
         width: 25,
@@ -102,4 +98,7 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'medium',
     },
+    loading: {
+        marginLeft: 20,
+    }
 });

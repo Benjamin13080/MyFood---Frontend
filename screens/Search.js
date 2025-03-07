@@ -212,5 +212,8 @@ const styles = StyleSheet.create({
     },
     textInput: {
         width: '95%',
+    },
+    loading: {
+        marginLeft: 20,
     }
 })

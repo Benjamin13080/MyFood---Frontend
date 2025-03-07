@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TouchableOpacity,
   View,
@@ -13,13 +13,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { logout } from "../reducers/user";
 import SavedRecipes from "./SavedRecipes";
+import { addDiet } from "../reducers/user";
 
 export default function Profile() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const IPADRESS = process.env.EXPO_PUBLIC_IP_ADDRESS;
+  const user = useSelector((state) => state.user.value);
   const token = useSelector((state) => state.user.value.token);
-  const diet = useSelector((state) => state.user.value.diet);
   const [modalDeleteAccount, setModalDeleteAccount] = useState(false);
   const [modalChangeEmail, setModalChangeEmail] = useState(false);
   const [modalChangePassword, setModalChangePassword] = useState(false);
@@ -28,11 +29,70 @@ export default function Profile() {
   const [newPassword, setNewPassword] = useState("");
   const [email, setEmail] = useState("");
   const [bookmarksOpen, setBookmarksOpen] = useState(true);
+  const [diets, setDiets] = useState([]);
+
+  const dietIcons = {
+    muscleGain: require("../assets/barbell.png"),
+    healthy: require("../assets/scale.png"),
+    glutenFree: require("../assets/no-gluten.png"),
+    pregnant: require("../assets/pregnant.png"),
+    vegetarian: require("../assets/vegeterian.png"),
+  };
+
+  useEffect(() => {
+    fetch(`http://${IPADRESS}:3000` + "/diets")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data?.result) {
+          setDiets(data.diets);
+        }
+      });
+  }, []);
 
   const handleClickTab = (tab) => {
-    console.log("click", bookmarksOpen);
     tab == "bookmarks" ? setBookmarksOpen(true) : setBookmarksOpen(false);
   };
+
+  const handlePress = (diet) => {
+    if (!user.token) {
+      dispatch(addDiet(diet.prop));
+      navigation.navigate("TabNavigator", {
+        screen: "Regime",
+        params: { diet, dietIcons },
+      });
+    } else {
+      fetch(`http://${IPADRESS}:3000` + "/users/diet/" + user.token, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ field: diet.prop }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.result) {
+            dispatch(addDiet(diet.prop));
+          } else {
+            createAlert(data.error);
+          }
+        })
+        .catch((error) => console.error(error));
+    }
+  };
+
+  const dietsContent = diets.map((diet, i) => {
+    const styleButton = user.diet.includes(diet.prop)
+      ? [styles.dietbtn, styles.active]
+      : styles.dietbtn;
+    return (
+      <TouchableOpacity
+        key={i}
+        style={styleButton}
+        onPress={() => handlePress(diet)}
+      >
+        <Image source={dietIcons[diet.prop]} style={styles.icon} />
+        <Text style={styles.dietText}>{diet.name}</Text>
+      </TouchableOpacity>
+    );
+  });
 
   {
     /* ----------------UPDATE PASSWORD--------------- */
@@ -294,45 +354,7 @@ export default function Profile() {
         <SavedRecipes />
       ) : (
         <>
-          <View>
-            <TouchableOpacity style={[styles.dietbtn, styles.active]}>
-              <Image
-                source={require("../assets/barbell.png")}
-                style={styles.icon}
-              />
-              <Text style={styles.dietText}>Muscle gain</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dietbtn}>
-              <Image
-                source={require("../assets/scale.png")}
-                style={styles.icon}
-              />
-              <Text style={styles.dietText}>Healthy</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dietbtn}>
-              <Image
-                source={require("../assets/no-gluten.png")}
-                style={styles.icon}
-              />
-              <Text style={styles.dietText}>Gluten free</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dietbtn}>
-              <Image
-                source={require("../assets/pregnant.png")}
-                style={styles.logoSize}
-              />
-              <Text style={styles.dietText}>Pregnant</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dietbtn}>
-              <View>
-                <Image
-                  source={require("../assets/vegeterian.png")}
-                  style={styles.icon}
-                />
-              </View>
-              <Text style={styles.dietText}>Vegetarian</Text>
-            </TouchableOpacity>
-          </View>
+          <View>{dietsContent}</View>
           <View style={styles.allButtons}>
             <TouchableOpacity style={styles.button}>
               <Text
