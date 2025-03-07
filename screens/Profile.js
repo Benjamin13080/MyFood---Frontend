@@ -12,6 +12,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { logout } from "../reducers/user";
+import SavedRecipes from "./SavedRecipes";
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -26,6 +27,12 @@ export default function Profile() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [bookmarksOpen, setBookmarksOpen] = useState(true);
+
+  const handleClickTab = (tab) => {
+    console.log("click", bookmarksOpen);
+    tab == "bookmarks" ? setBookmarksOpen(true) : setBookmarksOpen(false);
+  };
 
   {
     /* ----------------UPDATE PASSWORD--------------- */
@@ -87,7 +94,7 @@ export default function Profile() {
   }
   const handleLogout = () => {
     dispatch(logout());
-    navigation.navigate("Signin");
+    navigation.reset({ index: 0, routes: [{ name: "Signin" }] });
   };
   {
     /* ----------------DELETE ACCOUNT--------------- */
@@ -266,71 +273,93 @@ export default function Profile() {
         <Text style={styles.myProfile}>Profile</Text>
       </View>
       <View style={styles.navBar}>
-        <TouchableOpacity>
-          <Text style={styles.navBarText}>Saved recipes</Text>
+        <TouchableOpacity onPress={() => handleClickTab("bookmarks")}>
+          {bookmarksOpen ? (
+            <Text style={[styles.navBarText, styles.activeLink]}>
+              Saved recipes
+            </Text>
+          ) : (
+            <Text style={styles.navBarText}>Saved recipes</Text>
+          )}
         </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={[styles.navBarText, styles.activeLink]}>Settings</Text>
+        <TouchableOpacity onPress={() => handleClickTab("settings")}>
+          {!bookmarksOpen ? (
+            <Text style={[styles.navBarText, styles.activeLink]}>Settings</Text>
+          ) : (
+            <Text style={styles.navBarText}>Settings</Text>
+          )}
         </TouchableOpacity>
       </View>
-      <View>
-        <TouchableOpacity style={[styles.dietbtn, styles.active]}>
-          <Image
-            source={require("../assets/barbell.png")}
-            style={styles.icon}
-          />
-          <Text style={styles.dietText}>Muscle gain</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.dietbtn}>
-          <Image source={require("../assets/scale.png")} style={styles.icon} />
-          <Text style={styles.dietText}>Healthy</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.dietbtn}>
-          <Image
-            source={require("../assets/no-gluten.png")}
-            style={styles.icon}
-          />
-          <Text style={styles.dietText}>Gluten free</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.dietbtn}>
-          <Image
-            source={require("../assets/pregnant.png")}
-            style={styles.logoSize}
-          />
-          <Text style={styles.dietText}>Pregnant</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.dietbtn}>
+      {bookmarksOpen ? (
+        <SavedRecipes />
+      ) : (
+        <>
           <View>
-            <Image
-              source={require("../assets/vegeterian.png")}
-              style={styles.icon}
-            />
+            <TouchableOpacity style={[styles.dietbtn, styles.active]}>
+              <Image
+                source={require("../assets/barbell.png")}
+                style={styles.icon}
+              />
+              <Text style={styles.dietText}>Muscle gain</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.dietbtn}>
+              <Image
+                source={require("../assets/scale.png")}
+                style={styles.icon}
+              />
+              <Text style={styles.dietText}>Healthy</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.dietbtn}>
+              <Image
+                source={require("../assets/no-gluten.png")}
+                style={styles.icon}
+              />
+              <Text style={styles.dietText}>Gluten free</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.dietbtn}>
+              <Image
+                source={require("../assets/pregnant.png")}
+                style={styles.logoSize}
+              />
+              <Text style={styles.dietText}>Pregnant</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.dietbtn}>
+              <View>
+                <Image
+                  source={require("../assets/vegeterian.png")}
+                  style={styles.icon}
+                />
+              </View>
+              <Text style={styles.dietText}>Vegetarian</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.dietText}>Vegetarian</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.allButtons}>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.text} onPress={() => setModalChangeEmail(true)}>
-            Edit mail
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => setModalChangePassword(true)}
-        >
-          <Text style={styles.text}>Edit password</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => setModalDeleteAccount(true)}
-        >
-          <Text style={styles.text}>Delete account</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleLogout}>
-          <Text style={styles.text}>Logout</Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.allButtons}>
+            <TouchableOpacity style={styles.button}>
+              <Text
+                style={styles.text}
+                onPress={() => setModalChangeEmail(true)}
+              >
+                Edit mail
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setModalChangePassword(true)}
+            >
+              <Text style={styles.text}>Edit password</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setModalDeleteAccount(true)}
+            >
+              <Text style={styles.text}>Delete account</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleLogout}>
+              <Text style={styles.text}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </View>
   );
 }
