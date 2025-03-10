@@ -14,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { logout } from "../reducers/user";
 import SavedRecipes from "./SavedRecipes";
 import { addDiet } from "../reducers/user";
+import ReusableModal from "./ReusableModal";
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -30,6 +31,8 @@ export default function Profile() {
   const [email, setEmail] = useState("");
   const [bookmarksOpen, setBookmarksOpen] = useState(true);
   const [diets, setDiets] = useState([]);
+  const [modalType, setModalType] = useState(null);
+  const [inputValue, setInputValue] = useState("");
 
   const dietIcons = {
     muscleGain: require("../assets/barbell.png"),
@@ -183,102 +186,44 @@ export default function Profile() {
       });
   };
 
+  const handleConfirm = () => {
+    if (modalType === "email") {
+      console.log("Nouvel email:", inputValue);
+    } else if (modalType === "password") {
+      console.log("Nouveau mot de passe:", inputValue);
+    }
+    setModalType(null);
+    setInputValue("");
+  };
+
   return (
     <View style={styles.container}>
       {/* ----------------MODAL EDIT PASSWORD--------------- */}
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalChangePassword}
-        onRequestClose={() => {
-          setModalChangePassword(!modalChangePassword);
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>
-              Please enter your old password and new password to update
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Old password"
-              secureTextEntry={true}
-              onChangeText={(text) => setOldPassword(text)}
-              value={oldPassword}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="New password"
-              secureTextEntry={true}
-              onChangeText={(text) => setNewPassword(text)}
-              value={newPassword}
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.button, styles.buttonCancel]}
-                onPress={() => setModalChangePassword(!modalChangePassword)}
-              >
-                <Text style={styles.textStyle}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.buttonConfirm]}
-                onPress={() => {
-                  setModalChangePassword(!modalChangePassword);
-                  handleUpdatePassword();
-                  setOldPassword("");
-                  setNewPassword("");
-                }}
-              >
-                <Text style={styles.textStyle}>Confirm</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* Modal pour modifier le mot de passe */}
+      <ReusableModal
+        visible={modalType === "password"}
+        onRequestClose={() => setModalType(null)}
+        title="Edit password"
+        placeholder="Enter your new password"
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+        onConfirm={handleConfirm}
+        onCancel={() => setModalType(null)}
+      />
 
       {/* ----------------MODAL EDIT EMAIL--------------- */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalChangeEmail}
-        onRequestClose={() => {
-          setModalChangeEmail(!modalChangeEmail);
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>
-              Please enter your new email to update
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder="New email"
-              keyboardType="email-address"
-              onChangeText={(text) => setEmail(text)}
-              value={email}
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.button, styles.buttonCancel]}
-                onPress={() => setModalChangeEmail(!modalChangeEmail)}
-              >
-                <Text style={styles.textStyle}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.buttonConfirm]}
-                onPress={() => {
-                  setModalChangeEmail(!modalChangeEmail);
-                  handleUpdateEmail();
-                  setEmail("");
-                }}
-              >
-                <Text style={styles.textStyle}>Confirm</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* Modal pour modifier l'email */}
+      <ReusableModal
+        visible={modalType === "email"}
+        onRequestClose={() => setModalType(null)}
+        title="Edit email"
+        placeholder="Enter your new email"
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+        onConfirm={handleConfirm}
+        onCancel={() => setModalType(null)}
+      />
       {/*----------- MODAL DELETE ACCOUNT----------------  */}
       <Modal
         animationType="slide"
@@ -349,16 +294,13 @@ export default function Profile() {
           <View>{dietsContent}</View>
           <View style={styles.allButtons}>
             <TouchableOpacity style={styles.button}>
-              <Text
-                style={styles.text}
-                onPress={() => setModalChangeEmail(true)}
-              >
+              <Text style={styles.text} onPress={() => setModalType("email")}>
                 Edit mail
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => setModalChangePassword(true)}
+              onPress={() => setModalType("password")}
             >
               <Text style={styles.text}>Edit password</Text>
             </TouchableOpacity>
