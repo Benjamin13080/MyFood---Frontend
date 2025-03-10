@@ -11,10 +11,8 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
-import { logout } from "../reducers/user";
+import { logout, toggleDiet } from "../reducers/user";
 import SavedRecipes from "./SavedRecipes";
-import { addDiet } from "../reducers/user";
-import ReusableModal from "./ReusableModal";
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -72,9 +70,40 @@ export default function Profile() {
       })
       .catch((error) => console.error(error));
   };
+  const handlePress = (diet) => {
+    fetch(`http://${IPADRESS}:3000` + "/users/diet/" + user.token, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ field: diet.prop }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.result) {
+          dispatch(toggleDiet(diet.prop));
+        } else {
+          createAlert(data.error);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
 
   const dietsContent = diets.map((diet, i) => {
     const styleButton = user.diet.includes(diet.prop)
+      ? [styles.dietbtn, styles.active]
+      : styles.dietbtn;
+    return (
+      <TouchableOpacity
+        key={i}
+        style={styleButton}
+        onPress={() => handlePress(diet)}
+      >
+        <Image source={dietIcons[diet.prop]} style={styles.icon} />
+        <Text style={styles.dietText}>{diet.name}</Text>
+      </TouchableOpacity>
+    );
+  });
+  const dietsContent = diets.map((diet, i) => {
+    const styleButton = user.diets.includes(diet.prop)
       ? [styles.dietbtn, styles.active]
       : styles.dietbtn;
     return (
@@ -331,6 +360,134 @@ const styles = StyleSheet.create({
   },
 
   myProfile: {
+    fontSize: 30,
+    fontWeight: "bold",
+    fontFamily: "inter",
+    paddingLeft: 10,
+    textShadowColor: "green",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 1,
+  },
+  navBar: {
+    width: "100%",
+    flexDirection: "row",
+    backgroundColor: "#bad3bb",
+  },
+  navBarText: {
+    fontWeight: "bold",
+    color: "white",
+    padding: 15,
+  },
+  activeLink: {
+    borderBottomWidth: 2,
+    borderBottomColor: "white",
+    paddingBottom: 5,
+  },
+  allButtons: {
+    alignItems: "center",
+    width: "100%",
+  },
+  button: {
+    alignItems: "center",
+    padding: 10,
+    width: "80%",
+    backgroundColor: "#33652C",
+    borderRadius: 5,
+    margin: 8,
+    flexDirection: "row",
+  },
+  text: {
+    flex: 1,
+    color: "white",
+    fontFamily: "Inter",
+    textAlign: "center",
+  },
+  dietText: {
+    flex: 1,
+    color: "black",
+    fontFamily: "Inter",
+    textAlign: "center",
+    paddingRight: 35,
+  },
+  logoSize: {
+    width: 30,
+    height: 30,
+    alignSelf: "flex-start",
+  },
+  dietbtn: {
+    alignItems: "center",
+    padding: 5,
+    width: "80%",
+    backgroundColor: "white",
+    borderRadius: 5,
+    margin: 8,
+    flexDirection: "row",
+    borderWidth: 2,
+    borderColor: "#85cb85",
+  },
+  active: {
+    backgroundColor: "#85cb85",
+  },
+  icon: {
+    width: 30,
+    height: 30,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  input: {
+    height: 40,
+    borderColor: "#ddd",
+    borderWidth: 1,
+    marginBottom: 20,
+    paddingLeft: 10,
+    width: "100%",
+    border: "1px solid grey",
+  },
+  modalView: {
+    width: "80%",
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+    fontSize: 18,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  buttonCancel: {
+    backgroundColor: "#DDDDDD",
+    marginRight: 10,
+    flex: 1,
+  },
+  buttonConfirm: {
+    backgroundColor: "#FF0000",
+    flex: 1,
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  myProfile: {
+    marginTop: "5%",
     fontSize: 30,
     fontWeight: "bold",
     fontFamily: "inter",

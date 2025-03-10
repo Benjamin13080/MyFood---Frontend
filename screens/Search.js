@@ -11,8 +11,9 @@ export default function Search({ navigation }) {
     const user = useSelector((state) => state.user.value);
 
     const [recipes, setRecipes] = useState([]);
-    const [dietOptions, setDietOptions] = useState([]);
+    const [dietOptions, setDietOptions] = useState([...user.diets]);
     const [searchInput, setSearchInput] = useState('');
+    const [page, setPage] = useState(1);
 
     const dietIcons = [
         { name: 'muscleGain', img: require("../assets/barbell.png") },
@@ -22,19 +23,18 @@ export default function Search({ navigation }) {
         { name: 'vegetarian', img: require("../assets/vegeterian.png") }
     ];
 
-    // Use effect: mount
+    // Use effect: user.diets init or updated
     useEffect(() => {
-        const diets = user.diet ? user.diet : ''
-        
-        fetch(`http://${IPADRESS}:3000` + '/recipes/search?diets=' + diets)
+        fetch(`http://${IPADRESS}:3000` + '/recipes/search?diets=' + user.diets.join(',') + '&name=' + searchInput)
             .then(response => response.json())
             .then(data => {
                 if (data?.result) {
                     setRecipes(data.recipes)
-                    user && setDietOptions([user.diet])
+                    setDietOptions([...user.diets])
                 }
             })
-    }, [user.diet]);
+
+    }, [user.diets]);
 
     // Use effect: dietOptions or seachInput initialized or updated
     useEffect(() => {
@@ -81,22 +81,26 @@ export default function Search({ navigation }) {
     }
 
     // recipesContent: array of recipe
-    const recipesContent = recipes.length == 0 ? <Text style={styles.loading}>Loading...</Text> : recipes.map((recipe, i) => {
+    const recipesContent = recipes.length == 0 ? <Text style={styles.loading}>Loading...</Text> : recipes.slice(0, page * 25).map((recipe, i) => {
         const icons = dietIcons.filter(diet => recipe[diet.name])
             .map((diet, i) => (<Image key={i} style={styles.recipeImage} source={diet.img} alt={diet.name} />))
 
         const colorBookmark = user.token && user.bookmarks.includes(recipe.id) ? "#6DCD7D" : "black";
-        const bookmark = user.token ? <Icon name="bookmark" size={22} color={colorBookmark} style={styles.icon} onPress={() => handlePressBookmark(recipe)} /> : [];
+        const bookmark = user.token ? <Icon name="bookmark" size={22} color={colorBookmark} style={styles.bookmarkIcon} onPress={() => handlePressBookmark(recipe)} /> : [];
         const name = recipe.name.length > 25 ? recipe.name.slice(0, 22) + '...' : recipe.name;
-
         return (
-            <TouchableOpacity key={i} style={styles.recetteContainer} onPress={() => navigation.navigate('Recipe', { id: recipe.id })}>
-                <View style={styles.iconsContainer}>
-                    {icons}
+            <TouchableOpacity style={styles.recetteContent} key={i} onPress={() => navigation.navigate('Recipe', { id: recipe.id })}>
+                <View style={styles.pictureContainer}>
+                    <Image source={{ uri: recipe.picture }} style={styles.picture} ></Image>
+                    <View style={styles.bookmarks}>
+                        {bookmark}
+                    </View>
                 </View>
-                <View style={styles.titleContainer}>
-                    <Text style={styles.recette} numberOfLines={1}>{name}</Text>
-                    {bookmark}
+                <Text style={styles.text} >{name}</Text>
+                <View style={styles.iconsContainer}>
+                    <View style={styles.icons}>
+                        {icons}
+                    </View>
                 </View>
             </TouchableOpacity>
         )
@@ -113,6 +117,9 @@ export default function Search({ navigation }) {
         )
     });
 
+    const handleLoadMore = () => {
+        setPage(prevPage => prevPage + 1);
+    };
 
     return (
         <>
@@ -125,8 +132,15 @@ export default function Search({ navigation }) {
                     {searchIcons}
                 </View>
             </View>
-            <ScrollView style={styles.container}>
-                {recipesContent}
+            <ScrollView>
+                <View style={styles.recetteContainer}>
+                    {recipesContent}
+                </View>
+                {recipes.length > page * 25 && (
+                    <TouchableOpacity style={styles.handleLoadMoreButton} onPress={handleLoadMore}>
+                        <Text style={styles.loadMoreText}> See more ... </Text>
+                    </TouchableOpacity>
+                )}
             </ScrollView>
         </>
     )
@@ -135,12 +149,6 @@ export default function Search({ navigation }) {
 const styles = StyleSheet.create({
     searchContainer: {
         backgroundColor: '#EDF9EF',
-    },
-    container: {
-        flex: 1,
-        backgroundColor: '#EDF9EF',
-        overflow: 'scroll',
-        paddingBottom: '10%',
     },
     inputContainer: {
         flexDirection: 'row',
@@ -175,45 +183,72 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
         margin: 5,
     },
-    recetteContainer: {
-        alignItems: 'space-between',
-        justifyContent: 'center',
-        flexDirection: 'row',
-        backgroundColor: '#1A6723',
-        padding: '3%',
-        borderRadius: 10,
-        width: '90%',
-        textAlign: 'center',
-        margin: '3%',
-    },
-    recette: {
-        fontFamily: 'Inter',
-        color: 'white',
-        fontWeight: 'medium',
-    },
-    recipeImage: {
-        width: 25,
-        height: 25,
-    },
-    iconContainer: {
-        flexDirection: 'row',
-    },
-    iconsContainer: {
-        flex: 0.6,
-        flexDirection: 'row',
-        justifyContent: 'flex-start'
-    },
-    titleContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignSelf: 'center',
-        width: '100%'
-    },
     textInput: {
         width: '95%',
     },
     loading: {
         marginLeft: 20,
+    },
+    picture: {
+        width: 150,
+        height: 150,
+        borderRadius: 10,
+        margin: 10,
+    },
+    recetteContainer: {
+        flex: 1,
+        backgroundColor: '#EDF9EF',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        padding: 10,
+    },
+    recetteContent: {
+        width: '45%',
+        margin: 5,
+        padding: 5,
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: '#6DCD7D',
+        borderStyle: 'solid',
+        alignItems: 'center',
+        backgroundColor: 'white',
+    },
+    text: {
+        textAlign: 'center',
+        marginTop: 5,
+        marginBottom: 5,
+        fontWeight: 'bold',
+    },
+    pictureContainer: {
+        flexDirection: 'row',
+    },
+    bookmarkIcon: {
+        position: 'absolute',
+        right: 120,
+        top: '10%',
+        backgroundColor: '#EDF9EF',
+        padding: 5,
+        borderWidth: 2,
+    },
+    icons: {
+        flexDirection: 'row',
+    },
+    recipeImage: {
+        width: 25,
+        height: 25,
+        margin: '2%',
+    },
+    handleLoadMoreButton: {
+        backgroundColor: '#EDF9EF',
+        paddingLeft: '60%',
+        paddingBottom: '5%',
+    },
+    loadMoreText: {
+        fontFamily: 'inter',
+        fontWeight: '900',
+        fontSize: 25,
+        color: 'black',
+        fontStyle: 'italic'
     }
 })

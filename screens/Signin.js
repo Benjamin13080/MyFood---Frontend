@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { TextInput, TouchableOpacity, View, Text, StyleSheet, Alert } from "react-native";
 import { useDispatch } from "react-redux";
-import { login, importBookmarks } from "../reducers/user";
+import { login, importBookmarks, toggleDiet, importDiets } from "../reducers/user";
 import { FontAwesome } from "react-native-vector-icons";
 
 export default function Signin({ navigation }) {
-
 	const dispatch = useDispatch();
 	const IPADRESS = process.env.EXPO_PUBLIC_IP_ADDRESS;
+
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
+
+	const fields = ['muscleGain', 'healthy', 'pregnant', 'glutenFree', 'vegetarian'];
 
 	const createAlert = (alertMsg) => {
 		Alert.alert('Error', alertMsg, [
@@ -31,12 +33,18 @@ export default function Signin({ navigation }) {
 					fetch(`http://${IPADRESS}:3000/bookmarks/${data.token}`)
 						.then(response => response.json())
 						.then(dataBookmarks => {
+							// dispatch user login and token
 							dispatch(login({ token: data.token, username: data.username }));
+							// dispatch user bookmarks
 							const bookmarks = dataBookmarks.bookmarks.map(bk => bk.id_recipe);
 							dispatch(importBookmarks(bookmarks));
+							// dispatch user diet
+							const userDiets = fields.filter(field => data[field])
+							dispatch(importDiets(userDiets));
+							
 							setEmail('');
-							setPassword('')
-							navigation.navigate('Restriction')
+							setPassword('');
+							navigation.navigate('TabNavigator', { screen: 'Regime' });
 						})
 				} else {
 					if (typeof data.error == "object") {
@@ -112,6 +120,7 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		fontWeight: 'medium',
 		margin: 5,
+		fontStyle: 'italic',
 	},
 	input: {
 		backgroundColor: 'white',
