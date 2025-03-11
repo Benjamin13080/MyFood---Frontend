@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EDF9EF",
     alignItems: "center",
     justifyContent: "center",
-    gap: 40,
+    gap: 30,
   },
 
   myProfile: {

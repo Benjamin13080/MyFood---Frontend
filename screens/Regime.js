@@ -28,7 +28,7 @@ export default function Regime() {
         if (data?.result) {
           const index = data.diets.findIndex(diet => user.diets.includes(diet.prop));
           setDiets([...data.diets]);
-          setCurrentIndex(index);
+          index != -1 ? setCurrentIndex(index) : setCurrentIndex(0);
 
         }
       })
@@ -36,7 +36,7 @@ export default function Regime() {
 
   useEffect(() => {
     const index = diets.findIndex(diet => user.diets.includes(diet.prop));
-    setCurrentIndex(index);
+    index != -1 ? setCurrentIndex(index) : setCurrentIndex(0);
   }, [user.diets])
 
   const diet = diets[currentIndex];
